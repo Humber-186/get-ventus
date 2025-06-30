@@ -145,7 +145,7 @@ build_llvm() {
   fi
   mkdir -p ${LLVM_BUILD_DIR}
   cd ${LLVM_BUILD_DIR}
-  cmake -G Ninja -B ${LLVM_BUILD_DIR} ${LLVM_DIR} \
+  cmake -G Ninja -B ${LLVM_BUILD_DIR} -S ${LLVM_DIR}/llvm \
     -DLLVM_CCACHE_BUILD=ON \
     -DLLVM_OPTIMIZED_TABLEGEN=ON \
     -DLLVM_PARALLEL_LINK_JOBS=12 \
