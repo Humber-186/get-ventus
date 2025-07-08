@@ -91,48 +91,30 @@ check_if_program_exits $CYCLESIM_DIR "ventus-gpgpu cpp cycle-level simulator"
 CYCLESIM_BUILD_DIR=${CYCLESIM_DIR}/build
 
 # Need to get the ventus-gpgpu (Chisel RTL) folder from enviroment variables
-# if [ -z "${GPGPU_DIR}" ]; then
-#   GPGPU_DIR=${DIR}/gpgpu
-# fi
 GPGPU_DIR=${GPGPU_DIR:-${DIR}/gpgpu}
 check_if_program_exits $GPGPU_DIR "ventus-gpgpu chisel RTL"
 
 # Need to get the pocl folder from enviroment variables
-# if [ -z "${POCL_DIR}" ]; then
-#   POCL_DIR=${DIR}/pocl
-# fi
 POCL_DIR=${POCL_DIR:-${DIR}/pocl}
 check_if_program_exits $POCL_DIR "pocl"
 POCL_BUILD_DIR=${POCL_DIR}/build
 
 # Need to get the ventus-driver folder from enviroment variables
-# if [ -z "${DRIVER_DIR}" ]; then
-#   DRIVER_DIR=${DIR}/driver
-# fi
 DRIVER_DIR=${DRIVER_DIR:-${DIR}/driver}
 check_if_program_exits ${DRIVER_DIR} "ventus-driver"
 DRIVER_BUILD_DIR=${DRIVER_DIR}/build
 
 # Need to get the ventus-spike folder from enviroment variables
-# if [ -z "${SPIKE_DIR}" ]; then
-#   SPIKE_DIR=${DIR}/spike
-# fi
 SPIKE_DIR=${SPIKE_DIR:-${DIR}/spike}
 check_if_program_exits ${SPIKE_DIR} "spike"
 SPIKE_BUILD_DIR=${SPIKE_DIR}/build
 
 # Need to get the icd_loader folder from enviroment variables
-# if [ -z "${OCL_ICD_DIR}" ]; then
-#   OCL_ICD_DIR=${DIR}/ocl-icd
-# fi
 OCL_ICD_DIR=${OCL_ICD_DIR:-${DIR}/ocl-icd}
 check_if_program_exits ${OCL_ICD_DIR} "ocl-icd"
 OCL_ICD_BUILD_DIR=${OCL_ICD_DIR}/build
 
 # Need to get the gpu-rodinia folder from enviroment variables
-# if [ -z "${RODINIA_DIR}" ]; then
-#   RODINIA_DIR=${DIR}/gpu-rodinia
-# fi
 RODINIA_DIR=${RODINIA_DIR:-${DIR}/rodinia}
 check_if_program_exits ${RODINIA_DIR} "gpu-rodinia"
 
@@ -240,9 +222,9 @@ build_libclc() {
     -DCMAKE_CLC_COMPILER_WORKS=ON \
     -DCMAKE_CLC_COMPILER_FORCED=ON \
     -DCMAKE_LLAsm_FLAGS="-target riscv32 -mcpu=ventus-gpgpu -cl-std=CL2.0 -Dcl_khr_fp64 -ffunction-sections -fdata-sections" \
-    -DCMAKE_CLC_FLAGS="-target riscv32 -mcpu=ventus-gpgpu -cl-std=CL2.0 -I${DIR}/libclc/generic/include -Dcl_khr_fp64  -ffunction-sections -fdata-sections"\
+    -DCMAKE_CLC_FLAGS="-target riscv32 -mcpu=ventus-gpgpu -cl-std=CL2.0 -I${LLVM_DIR}/libclc/generic/include -Dcl_khr_fp64  -ffunction-sections -fdata-sections"\
     -DLIBCLC_TARGETS_TO_BUILD="riscv32--" \
-    -DCMAKE_CXX_FLAGS="-I ${DIR}/llvm/include/ -std=c++17 -Dcl_khr_fp64 -ffunction-sections -fdata-sections" \
+    -DCMAKE_CXX_FLAGS="-I ${LLVM_DIR}/llvm/include/ -std=c++17 -Dcl_khr_fp64 -ffunction-sections -fdata-sections" \
     -DCMAKE_INSTALL_PREFIX=${VENTUS_INSTALL_PREFIX} \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
     # -DCMAKE_C_COMPILER=clang \
@@ -251,7 +233,7 @@ build_libclc() {
   ninja install
   # TODO: There are bugs in linking all libclc object files now
   echo "************* Building riscv32 libclc object file ************"
-  bash ${DIR}/libclc/build_riscv32clc.sh ${DIR}/libclc ${LIBCLC_BUILD_DIR} ${VENTUS_INSTALL_PREFIX} || true
+  bash ${LLVM_DIR}/libclc/build_riscv32clc.sh ${LLVM_DIR}/libclc ${LIBCLC_BUILD_DIR} ${VENTUS_INSTALL_PREFIX} || true
 
   DstDir=${VENTUS_INSTALL_PREFIX}/share/pocl
   if [ ! -d "${DstDir}" ]; then
