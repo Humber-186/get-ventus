@@ -1,4 +1,4 @@
-使用仓库中的脚本前先从[这里](https://cloud.tsinghua.edu.cn/d/ad61a4502fbb43daa45e/)下载rodinia测试套件所需数据集，放置在本仓库下并命名为`rodinia_data.tar.xz`
+使用仓库中的脚本前先从[这里](https://cloud.tsinghua.edu.cn/d/ad60a4502fbb43daa45e/)下载rodinia测试套件所需数据集，放置在本仓库下并命名为`rodinia_data.tar.xz`
 
 # Dockerfile使用说明
 
