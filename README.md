@@ -1,16 +1,27 @@
 # 使用说明
 
+# 部署脚本使用说明
+
+TODO：需要对照Dockerfile更新
+
 `clone.py`用来获取所有的git仓库    
 运行脚本会询问存储的目标路径与其它问题    
 推荐先设置`git config --global http.proxy`及git clone ssh的代理    
-推荐先设置`http_proxy`, `HTTPS_PROXY`等环境变量
+推荐先设置`http_proxy`, `https_proxy`等环境变量
 
 `env.sh`与`build-ventus.sh`会被`clone.py`复制到目标路径（例如为`./ventus/`）中
 
 先安装所有需要的依赖项
+* 已测试环境：ubuntu24.04
 * 需要设置`SYSTEMC_HOME`环境变量指向systemc 2.3.4库所在路径
-* 需安装verilator >= v5.024版本在$PATH中
-* 其它待补充
+* 需安装verilator >= v5.026版本在$PATH中（建议v5.034）
+* 依赖的apt包：
+```bash
+apt-get install \
+    mold ccache ninja-build cmake clang clangd clang-format gdb \
+    help2man perl perl-doc flex bison libfl2 libfl-dev zlib1g zlib1g-dev libgoogle-perftools-dev numactl \
+    libfmt-dev libspdlog-dev libelf-dev libyaml-cpp-dev device-tree-compiler bsdmainutils ruby default-jdk
+```
 
 在目标路径`ventus/`中运行`bash build-ventus.sh`一键编译    
 

@@ -1,31 +1,44 @@
 import os
 import subprocess
 import shutil
+from typing import List
 
 LOCAL_PREBUILD_PATH = "/home/common/ventus-toolchain-prebuild"
 
+end_log_output :List[str] = []
+
 def rodinia_after_clone(repo_path):
-    """ Get data tar.gz file for rodinia after cloning the repository. """
+    """ Get data set for rodinia after cloning the repository. """
     data_path = os.path.join(repo_path, "data")
-    if(os.path.exists(f"{LOCAL_PREBUILD_PATH}/gpu-rodinia-data")):
+    data_tarball = "rodinia_data.tar.xz"
+    if os.path.exists(f"{LOCAL_PREBUILD_PATH}/gpu-rodinia-data"):
         shutil.copytree(
             f"{LOCAL_PREBUILD_PATH}/gpu-rodinia-data",
             data_path,
             dirs_exist_ok=True
         )
-    else:
-        # Download zip and extract from https://www.dropbox.com/s/cc6cozpboht3mtu/rodinia-3.1-data.tar.gz
-        if not os.path.exists(data_path):
-            os.makedirs(data_path)
-        tgz_url = "https://www.dropbox.com/s/cc6cozpboht3mtu/rodinia-3.1-data.tar.gz"
-        tgz_path = os.path.join(data_path, "rodinia-3.1-data.tar.gz")
+    elif os.path.exists(data_tarball):
         try:
-            subprocess.run(["curl", "-L", tgz_url, "-o", tgz_path], check=True)
-            subprocess.run(["tar", "-xf", tgz_path, "-C", data_path], check=True)
-            os.remove(tgz_path)
-            print(f"Downloaded and extracted gpu-rodinia dataset to {repo_path}")
+            print(f"Extracting rodinia data from {data_tarball} to {data_path}...")
+            subprocess.run(["tar", "-xf", data_tarball, "-C", data_path], check=True)
+            print("Rodinia data extracted successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"Failed to download or extract prebuilt binary: {e}")
+            print(f"Failed to extract rodinia data from {data_tarball}: {e}")
+    else:
+        end_log_output.append(f"Please download the rodinia data set manually from https://cloud.tsinghua.edu.cn/d/ad60a4502fbb43daa45e/ and extract it to {repo_path}/data")
+
+def spike_after_clone(repo_path):
+    """ patch spike/fesvr/device.h < spike.patch """
+    patch_file = "spike.patch"
+    to_patch_file = os.path.join(repo_path, "fesvr/device.h")
+    if os.path.exists(patch_file):
+        try:
+            subprocess.run(["patch", to_patch_file, "-i", patch_file], check=True)
+            print(f"Applied patch {patch_file} to {repo_path}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to apply patch to {to_patch_file}: {e}")
+    else:
+        print(f"Patch file {patch_file} does not exist, skipping.")
 
 # 定义常用的仓库信息
 repositories = {
@@ -42,6 +55,7 @@ repositories = {
     },
     "spike": {
         "github": "THU-DSP-LAB/ventus-gpgpu-isa-simulator",
+        "after-clone": spike_after_clone,
     },
     "driver": {
         "github": "THU-DSP-LAB/ventus-driver",
@@ -60,8 +74,6 @@ repositories = {
         "branch": "develop",
     },
 }
-
-build_seq = ["llvm", "ocl-icd", "libclc", "spike", "driver", "pocl", "rodinia", "test-pocl"]
 
 def create_directory(directory):
     """创建目标目录，如果已存在则提示"""
@@ -153,6 +165,10 @@ def clone_repo(repo_name, target_folder):
             after_clone_func(repo_dir)
 
 def main():
+    print("Please check README.md and install dependencies first.")
+    print("Press Enter to continue...")
+    input()
+
     """主函数，处理用户输入并执行clone"""
     # 获取目标文件夹
     target_folder = input("Enter the directory to clone repositories into (default: ./ventus): ") or "./ventus"
@@ -182,9 +198,13 @@ def main():
     shutil.copyfile("build-ventus.sh", os.path.join(target_folder, "build-ventus.sh"))
     shutil.copyfile("env.sh", os.path.join(target_folder, "env.sh"))
     print("All repositories have been cloned or updated successfully.")
-    print("You can now run the build script in the target directory:")
+
+    for line in end_log_output:
+        print("* " + line)
+
+    print("* Make sure all dependencies are installed.")
+    print("* You can now run the build script in the target directory:")
     print(f"    cd {target_folder} && ./build-ventus.sh")
-    print("Make sure all dependencies are installed.")
 
 if __name__ == "__main__":
     main()
