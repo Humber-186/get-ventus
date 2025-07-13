@@ -1,4 +1,17 @@
-# 使用说明
+使用仓库中的脚本前先从[这里](https://cloud.tsinghua.edu.cn/d/ad61a4502fbb43daa45e/)下载rodinia测试套件所需数据集，放置在本仓库下并命名为`rodinia_data.tar.xz`
+
+# Dockerfile使用说明
+
+包含两个target，其它为中间过程
+* `ventus-dev`编译好的ventus开发仓库、rodinia测试套件及数据，推荐开发人员使用
+* `ventus`只包括编译产物，不包括源代码仓库与测试程序
+
+docker镜像构建（先下载好`rodinia_data.tar.xz`）
+```bash
+tar -xf rodinia_data.tar.xz
+docker build --target=ventus-dev -t ventus-dev:latest . 
+docker build --target=ventus -t ventus:latest .
+```
 
 # 部署脚本使用说明
 
